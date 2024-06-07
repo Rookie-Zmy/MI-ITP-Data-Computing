@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * 给你一棵无根带权树，树中总共有 n 个节点，分别表示 n 个服务器，服务器从 0 到 n - 1 编号。同时给你一个数组 edges ，其中 edges[i] = [ai, bi, weighti] 表示节点 ai 和 bi 之间有一条双向边，边的权值为 weighti 。再给你一个整数 signalSpeed 。
@@ -22,7 +23,7 @@ public class p0604 {
     boolean[] visited;
 
     /**
-     * 总是习惯用int[][] graph,下次图用这个表示 List<int[]>[] g  方便一点
+     *
      * DFS遍历
      *
      * 需要注意的点是，可连接的一对，不能是同一条路径上的！也就是说答案要从不同的路径里算。
@@ -39,45 +40,46 @@ public class p0604 {
     public int[] countPairsOfConnectableServers(int[][] edges, int signalSpeed) {
         int n = edges.length + 1;
         visited = new boolean[n];
-        int[][] graph = new int[n][n];
+        List<int[]>[] g = new ArrayList[n];
+        Arrays.setAll(g, i -> new ArrayList<>());
         for (int[] edge : edges) {
-            graph[edge[0]][edge[1]]=edge[2];
-            graph[edge[1]][edge[0]]=edge[2];
+            g[edge[0]].add(new int[]{edge[1], edge[2]});
+            g[edge[1]].add(new int[]{edge[0], edge[2]});
         }
         int[] res = new int[n];
         for(int i=0;i<n;i++){
+            if(g[i].size()<1)
+                continue;
             Arrays.fill(visited,false);
             ArrayList<Integer> list = new ArrayList<>();
             visited[i]=true;
             int sum=0;//左边的
-            int ways=0;
-            for(int j=0;j<graph.length;j++){
+            for (int[] e : g[i]) {
                 count=0;
-                if(graph[i][j]!=0) {
-                    visited[j]=true;
-                    dfs(j, graph, graph[i][j], signalSpeed);
-                    ways=count*sum;
-                    sum+=count;
-                }
+                visited[e[0]]=true;
+                dfs(e[0], g, e[1], signalSpeed);
+                res[i]+=count*sum;
+                sum+=count;
             }
-            res[i]=ways;
+
+
         }
         return res;
     }
-    public void dfs(int index,int[][] graph,int cost,int signalSpeed){
+    public void dfs(int index,List<int[]>[] g,int cost,int signalSpeed){
         if(cost>0 && cost%signalSpeed==0)
             count++;
-        for(int i=0;i<graph.length;i++){
-            if(graph[index][i]!=0 && !visited[i]){
-                visited[i]=true;
-                dfs(i,graph,cost+graph[index][i],signalSpeed);
-                visited[i]=false;
+        visited[index]=true;
+        for (int[] e : g[index]) {
+            if(!visited[e[0]]){
+                dfs(e[0],g,cost+e[1],signalSpeed);
+                visited[e[0]]=true;
             }
         }
     }
 
     @Test
     public void test(){
-        countPairsOfConnectableServers(new int[][]{{0,6,3},{6,5,3},{0,3,1},{3,2,7},{3,1,6},{3,4,2}},3);
+        countPairsOfConnectableServers(new int[][]{{1,0,2},{2,1,4},{3,2,4},{4,0,3},{5,1,4},{6,2,2},{7,6,4},{8,1,2},{9,8,3}},1);
     }
 }
