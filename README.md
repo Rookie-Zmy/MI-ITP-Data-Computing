@@ -61,6 +61,14 @@
 
 ```sh
 docker run -d --name pandown --link <mysql_name>:mysql -p 8080:8080 -v <service_path>:/var/lib/postgres pandown:01
+
+### 3.访问云盘系统
+
+在本地浏览器打开 localhost:8080 即可查看 Pandown 云盘系统的功能。
+
+### 注意
+
+在 Windows 中实现该代码，需要开启本地的 3306 端口，用于数据库的连接。开启方法参考链接：https://blog.csdn.net/weixin_43296313/article/details/127996612
     
     
     
