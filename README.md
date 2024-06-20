@@ -61,6 +61,7 @@
 
 ```sh
 docker run -d --name pandown --link <mysql_name>:mysql -p 8080:8080 -v <service_path>:/var/lib/postgres pandown:01
+```
 
 ### 3.访问云盘系统
 
