@@ -1,11 +1,15 @@
 # 云盘系统
-Docker镜像运行
 
-1、Mysql准备
-  a、在docker中下载一个mysql镜像并运行：
-    在命令行中依次输入以下命令：
-    docker pull mysql:latest
-    docker run -p 3306:3306 -e MYSQL_ROOT_PASSWORD="123456" -d mysql:latest
+##Docker镜像运行
+
+*1、Mysql准备
+  *a、在docker中下载一个mysql镜像并运行：
+    *在命令行中依次输入以下命令：
+    ```javascript
+      docker pull mysql:latest
+      docker run -p 3306:3306 -e MYSQL_ROOT_PASSWORD="123456" -d mysql:latest
+    ```
+    
   b、在mysql镜像中建立需要的表：
     在命令行中输入：
       docker ps
