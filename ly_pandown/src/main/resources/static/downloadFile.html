@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>下载文件</title>
+</head>
+<body>
+<h1>下载文件</h1>
+<form id="downloadFileForm">
+    <label for="directory">目录:</label>
+    <input type="text" id="directory" name="directory" required>
+    <label for="fileName">文件名:</label>
+    <input type="text" id="fileName" name="fileName" required>
+    <button type="submit">下载</button>
+</form>
+
+<script>
+    document.getElementById('downloadFileForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const directory = document.getElementById('directory').value;
+        const fileName = document.getElementById('fileName').value;
+        const response = await fetch(`/download?directory=${directory}&fileName=${fileName}`);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+</script>
+</body>
+</html>

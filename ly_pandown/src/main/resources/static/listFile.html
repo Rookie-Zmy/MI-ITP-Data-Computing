@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>列出目录中的文件</title>
+</head>
+<body>
+<h1>列出目录中的文件</h1>
+<form id="listFilesForm">
+    <label for="directory">目录:</label>
+    <input type="text" id="directory" name="directory" required>
+    <button type="submit">列出文件</button>
+</form>
+<ul id="fileList"></ul>
+
+<script>
+    document.getElementById('listFilesForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const directory = document.getElementById('directory').value;
+        const response = await fetch(`/list?directory=${directory}`);
+        const files = await response.json();
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.innerText = file;
+            fileList.appendChild(li);
+        });
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>删除数据仓库中的文件</title>
+</head>
+<body>
+<h1>删除数据仓库中的文件</h1>
+<form id="deleteRepositoryFileForm">
+    <label for="directory">目录:</label>
+    <input type="text" id="directory" name="directory" required>
+    <label for="fileName">文件名:</label>
+    <input type="text" id="fileName" name="fileName" required>
+    <button type="submit">删除</button>
+</form>
+<div id="result"></div>
+
+<script>
+    document.getElementById('deleteRepositoryFileForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const directory = document.getElementById('directory').value;
+        const fileName = document.getElementById('fileName').value;
+        const response = await fetch(`/repository/delete?directory=${directory}&fileName=${fileName}`, {
+            method: 'DELETE'
+        });
+        if (response.ok) {
+            document.getElementById('result').innerText = '文件删除成功';
+        } else {
+            document.getElementById('result').innerText = '文件删除失败';
+        }
+    };
+</script>
+</body>
+</html>

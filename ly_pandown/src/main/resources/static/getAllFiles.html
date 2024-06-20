@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查询所有文件</title>
+</head>
+<body>
+<h1>查询所有文件</h1>
+<button id="getAllFilesButton">显示所有文件</button>
+<ul id="fileList"></ul>
+
+<script>
+    document.getElementById('getAllFilesButton').onclick = async () => {
+        const response = await fetch('/filelist');
+        const files = await response.json();
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.innerText = file.name;  // 只显示文件名
+            fileList.appendChild(li);
+        });
+    };
+</script>
+</body>
+</html>

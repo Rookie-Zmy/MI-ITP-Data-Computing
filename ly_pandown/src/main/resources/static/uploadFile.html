@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>上传文件</title>
+</head>
+<body>
+<h1>上传文件</h1>
+<form id="uploadFileForm">
+    <label for="directory">目录:</label>
+    <input type="text" id="directory" name="directory" required>
+    <label for="file">文件:</label>
+    <input type="file" id="file" name="file" required>
+    <button type="submit">上传</button>
+</form>
+<div id="result"></div>
+
+<script>
+    document.getElementById('uploadFileForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const directory = document.getElementById('directory').value;
+        const fileInput = document.getElementById('file');
+        const formData = new FormData();
+        formData.append('directory', directory);
+        formData.append('file', fileInput.files[0]);
+
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+        if (response.ok) {
+            document.getElementById('result').innerText = '文件上传成功';
+        } else {
+            document.getElementById('result').innerText = '文件上传失败';
+        }
+    };
+</script>
+</body>
+</html>

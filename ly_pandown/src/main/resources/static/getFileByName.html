@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>根据文件名查询文件</title>
+</head>
+<body>
+<h1>根据文件名查询文件</h1>
+<form id="getFileForm">
+    <label for="fileName">文件名:</label>
+    <input type="text" id="fileName" name="fileName" required>
+    <button type="submit">查询</button>
+</form>
+<div id="fileInfo"></div>
+
+<script>
+    document.getElementById('getFileForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const fileName = document.getElementById('fileName').value;
+        const response = await fetch(`/file/${fileName}`);
+        if (response.ok) {
+            const file = await response.json();
+            document.getElementById('fileInfo').innerText = `ID: ${file.id}, Name: ${file.name}, Link: ${file.link}`;
+        } else {
+            document.getElementById('fileInfo').innerText = '文件未找到';
+        }
+    };
+</script>
+</body>
+</html>

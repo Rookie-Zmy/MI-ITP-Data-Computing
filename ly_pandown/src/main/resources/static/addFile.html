@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加文件</title>
+</head>
+<body>
+<h1>添加文件</h1>
+<form id="addFileForm">
+    <label for="fileName">文件名:</label>
+    <input type="text" id="fileName" name="fileName" required>
+    <label for="fileLink">文件链接:</label>
+    <input type="text" id="fileLink" name="fileLink" required>
+    <button type="submit">添加</button>
+</form>
+<div id="result"></div>
+
+<script>
+    document.getElementById('addFileForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const fileName = document.getElementById('fileName').value;
+        const fileLink = document.getElementById('fileLink').value;
+        const response = await fetch('/upfile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name: fileName, link: fileLink })
+        });
+        if (response.ok) {
+            document.getElementById('result').innerText = '文件添加成功';
+        } else {
+            document.getElementById('result').innerText = '文件添加失败';
+        }
+    };
+</script>
+</body>
+</html>
