@@ -1,47 +1,39 @@
 package com.xiaomi.service.impl;
 
-import com.aliyun.oss.ClientConfiguration;
 import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.model.ListObjectsRequest;
+import com.aliyun.oss.model.OSSObjectSummary;
+import com.aliyun.oss.model.ObjectListing;
+import com.xiaomi.model.AliyunOssProperties;
 import com.xiaomi.service.StorageService;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service("AliyunStorage")
 public class AliyunStorageServiceImpl implements StorageService {
 
-    @Value("${aliyun.oss.endpoint}")
-    private String endpoint;
+    private final OSS ossClient;
+    private final AliyunOssProperties aliyunOssProperties;
 
-    @Value("${aliyun.oss.accessKeyId}")
-    private String accessKeyId;
-
-    @Value("${aliyun.oss.accessKeySecret}")
-    private String accesKeySecret;
-
-    @Value("${aliyun.oss.bucketName}")
-    private String bucketName;
-
-    private OSS getOSSClient() {
-        ClientConfiguration conf = new ClientConfiguration();
-//        conf.setConnectionTimeout(5000);
-//        conf.setSocketTimeout(10000);
-//        conf.setMaxErrorRetry(3);
-        return new OSSClientBuilder().build(endpoint, accessKeyId, accesKeySecret);
+    @Autowired
+    public AliyunStorageServiceImpl(OSS ossClient, AliyunOssProperties aliyunOssProperties) {
+        this.ossClient = ossClient;
+        this.aliyunOssProperties = aliyunOssProperties;
     }
 
     @Override
     public String store(MultipartFile file) {
         String fileName = file.getOriginalFilename();
         try (InputStream inputStream = file.getInputStream()) {
-            OSS ossClient = getOSSClient();
-            ossClient.putObject(bucketName, fileName, inputStream);
+            ossClient.putObject(aliyunOssProperties.getBucketName(), fileName, inputStream);
             ossClient.shutdown();
         } catch (Exception e) {
             throw new RuntimeException("Failed to upload file to OSS", e);
@@ -50,41 +42,48 @@ public class AliyunStorageServiceImpl implements StorageService {
     }
 
     @Override
-    public Resource loadAsResource(String fileName) {
-        OSS ossClient = getOSSClient();
+    public List<String> listFiles() {
+        List<String> fileNames = new ArrayList<>();
         try {
-            InputStream inputStream = ossClient.getObject(bucketName, fileName).getObjectContent();
+            ObjectListing objectListing = ossClient.listObjects(new ListObjectsRequest(aliyunOssProperties.getBucketName()));
+            for (OSSObjectSummary objectSummary : objectListing.getObjectSummaries()) {
+                fileNames.add(objectSummary.getKey());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to list files from OSS", e);
+        }
+        return fileNames;
+    }
+
+    @Override
+    public Resource loadAsResource(String fileName) {
+        try {
+            InputStream inputStream = ossClient.getObject(aliyunOssProperties.getBucketName(), fileName).getObjectContent();
             return new InputStreamResource(inputStream);
         } catch (Exception e) {
             throw new RuntimeException("Failed to download file from OSS", e);
         }
-//        finally {
-//            ossClient.shutdown();
-//        }
     }
 
     @Override
     public void delete(String fileName) {
-        OSS ossClient = getOSSClient();
         try {
-            ossClient.deleteObject(bucketName, fileName);
+            ossClient.deleteObject(aliyunOssProperties.getBucketName(), fileName);
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete file from OSS", e);
-        } finally {
-            ossClient.shutdown();
         }
     }
 
     @Override
     public void rename(String oldFileName, String newFileName) {
-        OSS ossClient = getOSSClient();
         try {
-            ossClient.copyObject(bucketName, oldFileName, bucketName, newFileName);
-            ossClient.deleteObject(bucketName, oldFileName);
+            ossClient.copyObject(aliyunOssProperties.getBucketName(), oldFileName, aliyunOssProperties.getBucketName(), newFileName);
+            ossClient.deleteObject(aliyunOssProperties.getBucketName(), oldFileName);
         } catch (Exception e) {
             throw new RuntimeException("Failed to rename file on OSS", e);
         } finally {
             ossClient.shutdown();
         }
     }
+
 }

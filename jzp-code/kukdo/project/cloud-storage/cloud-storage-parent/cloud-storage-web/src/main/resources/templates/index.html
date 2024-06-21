@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>File Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+</head>
+<body>
+<div class="container" id="app">
+    <h1 class="title">File Management</h1>
+
+    <form method="post" enctype="multipart/form-data" action="api/files">
+        <div class="file has-name">
+            <label class="file-label">
+                <input class="file-input" type="file" name="file">
+                <span class="file-cta">
+                    <span class="file-icon">
+                        <i class="fas fa-upload"></i>
+                    </span>
+                    <span class="file-label">
+                        Choose a file…
+                    </span>
+                </span>
+                <span class="file-name">
+                    No file uploaded
+                </span>
+            </label>
+        </div>
+        <button type="submit" class="button is-primary">Upload</button>
+    </form>
+
+    <table class="table is-fullwidth">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>File Name</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="file : ${files}">
+            <td th:text="${file.id}">1</td>
+            <td th:text="${file.fileName}">example.txt</td>
+            <td>
+                <a th:href="@{/files/download/{id}(id=${file.id})}" class="button is-small is-link">Download</a>
+                <form method="post" th:action="@{/files/rename/{id}(id=${file.id})}" style="display:inline">
+                    <input type="text" name="newName" placeholder="New name" class="input is-small">
+                    <button type="submit" class="button is-small is-warning">Rename</button>
+                </form>
+                <form method="post" th:action="@{/files/{id}(id=${file.id})}" style="display:inline">
+                    <input type="hidden" name="_method" value="delete"/>
+                    <button type="submit" class="button is-small is-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const fileInput = document.querySelector('.file-input');
+        fileInput.addEventListener('change', (event) => {
+            const fileName = event.target.files[0].name;
+            const fileNameElement = document.querySelector('.file-name');
+            fileNameElement.textContent = fileName;
+        });
+    });
+</script>
+</body>
+</html>

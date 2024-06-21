@@ -4,9 +4,7 @@ import com.xiaomi.ApiResponse;
 import com.xiaomi.model.FileMetadata;
 import com.xiaomi.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,14 +12,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 @RequestMapping("/api")
 @RestController
 public class FileController {
 
+    private final FileService fileService;
+
     @Autowired
-    @Qualifier("Local")
-    private FileService fileService;
+    public FileController(FileService fileService) {
+        this.fileService = fileService;
+    }
+
+    @GetMapping("/files")
+    public List<String> listFiles() {
+        return fileService.getAllFiles();
+    }
 
     @PostMapping("/files")
     public ResponseEntity<FileMetadata> uploadFile(@RequestParam("file") MultipartFile file) {
@@ -34,8 +41,7 @@ public class FileController {
         FileMetadata metadata = fileService.getFileMetadata(Id);
         Path filePath = Paths.get(metadata.getFilePath());
         try {
-            Resource resource = new UrlResource(filePath.toUri()); // Local
-            // Resource resource = fileService.loadFileAsResource(metadata.getFilePath()); // Aliyun
+            Resource resource = fileService.fetchFile(metadata.getFilePath());
             if (resource.exists() && resource.isReadable()) {
                 return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + metadata.getFileName() + "\"")
                         .body(resource);

@@ -7,6 +7,7 @@ import com.xiaomi.service.StorageService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,8 +15,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Service("Aliyun")
+@Service
+@ConditionalOnProperty(name = "file.service-type", havingValue = "aliyun")
 public class AliyunFileServiceImpl implements FileService {
 
     @Autowired
@@ -36,9 +39,19 @@ public class AliyunFileServiceImpl implements FileService {
     }
 
     @Override
+    public List<String> getAllFiles() {
+        return storageService.listFiles();
+    }
+
+    @Override
     public FileMetadata getFileMetadata(Long Id) {
         return fileMetadataRepository.findById(Id)
                 .orElseThrow(() -> new RuntimeException("File not found with Id " + Id));
+    }
+
+    @Override
+    public Resource fetchFile(String filePath) {
+        return storageService.loadAsResource(filePath);
     }
 
     @Override
@@ -59,8 +72,4 @@ public class AliyunFileServiceImpl implements FileService {
         fileMetadataRepository.save(metadata);
     }
 
-    @Override
-    public Resource loadFileAsResource(String filePath) {
-        return storageService.loadAsResource(filePath);
-    }
 }
