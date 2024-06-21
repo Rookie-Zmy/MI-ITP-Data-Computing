@@ -70,6 +70,13 @@ docker run -d --name pandown --link <mysql_name>:mysql -p 8080:8080 -v <service_
 ### 注意
 
 在 Windows 中实现该代码，需要开启本地的 3306 端口，用于数据库的连接。开启方法参考链接：https://blog.csdn.net/weixin_43296313/article/details/127996612
+
+### Dockerfile
+FROM openjdk:latest
+
+COPY pandown-0.0.1-SNAPSHOT.jar app.jar
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
     
     
     
