@@ -34,7 +34,6 @@ public class AliyunStorageServiceImpl implements StorageService {
         String fileName = file.getOriginalFilename();
         try (InputStream inputStream = file.getInputStream()) {
             ossClient.putObject(aliyunOssProperties.getBucketName(), fileName, inputStream);
-            ossClient.shutdown();
         } catch (Exception e) {
             throw new RuntimeException("Failed to upload file to OSS", e);
         }
@@ -81,8 +80,6 @@ public class AliyunStorageServiceImpl implements StorageService {
             ossClient.deleteObject(aliyunOssProperties.getBucketName(), oldFileName);
         } catch (Exception e) {
             throw new RuntimeException("Failed to rename file on OSS", e);
-        } finally {
-            ossClient.shutdown();
         }
     }
 
