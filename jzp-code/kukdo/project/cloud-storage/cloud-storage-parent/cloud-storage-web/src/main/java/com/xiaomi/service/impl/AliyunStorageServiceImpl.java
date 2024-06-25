@@ -4,7 +4,9 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.ListObjectsRequest;
 import com.aliyun.oss.model.OSSObjectSummary;
 import com.aliyun.oss.model.ObjectListing;
-import com.xiaomi.model.AliyunOssProperties;
+import com.xiaomi.config.AliyunOssProperties;
+import com.xiaomi.model.FileMetadata;
+import com.xiaomi.repository.FileMetadataRepository;
 import com.xiaomi.service.StorageService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,9 @@ public class AliyunStorageServiceImpl implements StorageService {
 
     private final OSS ossClient;
     private final AliyunOssProperties aliyunOssProperties;
+
+    @Autowired
+    private FileMetadataRepository fileMetadataRepository;
 
     @Autowired
     public AliyunStorageServiceImpl(OSS ossClient, AliyunOssProperties aliyunOssProperties) {
@@ -46,7 +51,14 @@ public class AliyunStorageServiceImpl implements StorageService {
         try {
             ObjectListing objectListing = ossClient.listObjects(new ListObjectsRequest(aliyunOssProperties.getBucketName()));
             for (OSSObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-                fileNames.add(objectSummary.getKey());
+                String filePath = objectSummary.getKey();
+                List<FileMetadata> metadataList = fileMetadataRepository.findByFilePathStartingWith(filePath);
+                if (metadataList != null && !metadataList.isEmpty()) {
+                    FileMetadata metadata = metadataList.get(0);
+                    fileNames.add("ID: " + metadata.getId() + ", Name: " + metadata.getFileName());
+                } else {
+                    fileNames.add("ID: unknown, Name: " + filePath);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to list files from OSS", e);

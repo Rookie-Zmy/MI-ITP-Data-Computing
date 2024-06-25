@@ -18,5 +18,4 @@ public interface FileService {
     void deleteFile(Long fileId);
 
     void renameFile(Long id, String newName);
-
 }
