@@ -61,7 +61,7 @@ public class LocalStorageServiceImpl implements StorageService {
             throw new RuntimeException("Failed to list files", e);
         }
         return fileNames.stream()
-                .map(file -> "ID: " + file.getId() + ", Name: " + file.getFileName() + "\n")
+                .map(file -> "ID: " + file.getId() + ", Name: " + file.getFileName())
                 .collect(Collectors.toList());
     }
 
@@ -100,5 +100,4 @@ public class LocalStorageServiceImpl implements StorageService {
             throw new RuntimeException("Failed to rename file", e);
         }
     }
-
 }
