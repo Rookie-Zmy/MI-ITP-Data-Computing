@@ -1,10 +1,10 @@
 # 云盘系统 Cloud-Storage-Kukdo (CSK)
 ## 项目简介
-Cloud-Storage-Kukdo (CSK) 开源云盘系统：基于springboot + mysql + picocli + httpclient5进行开发，遵循RESTful风格进行API设计。
+Cloud-Storage-Kukdo (CSK) 开源云盘系统：基于Springboot + MySQL + Picocli + Httpclient5进行开发，遵循RESTful风格进行API设计。
 
-<img alt="Logo" height="150" src=".\pic\CSK.jpg" width="150"/>
+<img alt="Logo" height="150" src="./pic/CSK.jpg" width="150"/>
 
-本云盘系统旨在为用户提供高效、安全、可靠且可扩展的文件存储服务, 
+本云盘系统旨在为用户提供高效、安全、可靠且可扩展的文件存储服务，
 支持本地和阿里云存储两种存储模式，可根据用户需求和业务场景灵活调整存储策略。
 
 主要功能包括存储目录的文件列表展示，以及文件的上传、下载、重命名和删除等。
@@ -36,18 +36,18 @@ FILE_UPLOAD_DIR=/app/upload_files
 在当前根目录唤醒终端并执行命令`docker-compose up --build`即可启动Springboot的服务，其映射的默认端口号是`8080`，
 可以看到如下提示表示服务端启动成功：
 
-![服务端启动](.\pic\Server-Boot.png)
+![服务端启动](./pic/Server-Boot.png)
 
 > 注：使用Ctrl+C或者在Docker Desktop中可以停止服务
 
-![服务端关闭](.\pic\Server-Shutdown.png)
-![在Docker中服关闭](.\pic\Server-Shutdown-Docker.png)
+![服务端关闭](./pic/Server-Shutdown.png)
+![在Docker中服关闭](./pic/Server-Shutdown-Docker.png)
 
 ### 3. 启动客户端
-然后将目录切换到项目根目录的子目录`(cloud-storage-client)`，
-接着在终端中输入命令`java -jar .\target\cloud-storage-client-0.3-SNAPSHOT.jar`即可启动客户端，可以看到如下提示表示客户端启动成功：
+然后，将目录切换到项目根目录的子目录`(cloud-storage-client)`，
+接着在终端中输入命令`java -jar ./target/cloud-storage-client-0.3-SNAPSHOT.jar`即可启动客户端，可以看到如下提示表示客户端启动成功：
 
-![客户端启动](.\pic\Client-Boot.png)
+![客户端启动](./pic/Client-Boot.png)
 > 注：在终端输入`exit`可退出客户端终止会话
 ## 功能说明
 ### 文件上传: `upload`
@@ -85,52 +85,65 @@ FILE_UPLOAD_DIR=/app/upload_files
 ## 功能浏览
 ### 文件上传测试
 1. 阿里云OSS
-![文件上传云端测试](.\pic\Upload-test.png)
-![阿里云OSS上传结果查看](.\pic\Upload-aliyun.png)
+   
+![文件上传云端测试](./pic/Upload-test.png)
+![阿里云OSS上传结果查看](./pic/Upload-aliyun.png)
 
 2. 本地存储
-![文件上传本地测试](.\pic\Upload-test-local.png)
-![文件上传本地结果查看](.\pic\Upload-local.png)
+
+![文件上传本地测试](./pic/Upload-test-local.png)
+![文件上传本地结果查看](./pic/Upload-local.png)
 
 ### 文件下载测试
 1. 阿里云OSS
-![文件下载云端测试](.\pic\Download-test.png)
-![阿里云OSS下载结果查看](.\pic\Download-aliyun.png)
+
+![文件下载云端测试](./pic/Download-test.png)
+![阿里云OSS下载结果查看](./pic/Download-aliyun.png)
 
 2. 本地存储
-![文件下载本地测试](.\pic\Download-test-local.png)
-![下载文件本地结果查看](.\pic\Download-local.png)
+
+![文件下载本地测试](./pic/Download-test-local.png)
+![下载文件本地结果查看](./pic/Download-local.png)
 
 ### 文件重命名测试
 1. 阿里云OSS
-![文件重命名云端测试](.\pic\Rename-test.png)
-![阿里云OSS重命名结果查看](.\pic\Rename-aliyun.png)
+
+![文件重命名云端测试](./pic/Rename-test.png)
+![阿里云OSS重命名结果查看](./pic/Rename-aliyun.png)
 
 2. 本地存储
-![文件重命名本地测试](.\pic\Rename-test-local.png)
-![文件重命名本地结果查看](.\pic\Rename-local.png)
+
+![文件重命名本地测试](./pic/Rename-test-local.png)
+![文件重命名本地结果查看](./pic/Rename-local.png)
 
 ### 文件列表展示测试
 1. 阿里云OSS
-![文件列表展示云端测试](.\pic\List-test.png)
+
+![文件列表展示云端测试](./pic/List-test.png)
 
 2. 本地存储
-![文件列表展示本地测试](.\pic\List-test-local.png)
+
+![文件列表展示本地测试](./pic/List-test-local.png)
 
 ### 文件删除测试
 1. 阿里云OSS
-![文件删除云端测试](.\pic\Delete-test.png)
-![阿里云OSS删除结果查看](.\pic\Delete-aliyun.png)
+
+![文件删除云端测试](./pic/Delete-test.png)
+![阿里云OSS删除结果查看](./pic/Delete-aliyun.png)
 
 2. 本地存储
-![文件删除本地测试](.\pic\Delete-test-local.png)
-![文件删除本地结果查看](.\pic\Delete-local.png)
+
+![文件删除本地测试](./pic/Delete-test-local.png)
+![文件删除本地结果查看](./pic/Delete-local.png)
+
 ### 总测试流程
 1. 阿里云OSS
-![阿里云流程展示](.\pic\Aliyun-test.png)
+
+![阿里云流程展示](./pic/Aliyun-test.png)
 
 2. 本地存储
-![本地流程展示](.\pic\Local-test.png)
+
+![本地流程展示](./pic/Local-test.png)
 
 ## 项目架构
 待补充时序图，泳道图，UML类图等...
@@ -143,3 +156,4 @@ FILE_UPLOAD_DIR=/app/upload_files
 * 版本号：0.3
 * 更新时间：2024.06.26
 * 实现周期：06.17-06.26
+> 致谢：在此特别感谢夏从零Mentor的细心指导和每日答疑
