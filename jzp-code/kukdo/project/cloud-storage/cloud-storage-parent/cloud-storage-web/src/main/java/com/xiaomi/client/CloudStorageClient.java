@@ -1,4 +1,4 @@
-package com.xiaomi.unfin;
+package com.xiaomi.client;
 
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
@@ -8,41 +8,45 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.springframework.stereotype.Component;
 import picocli.CommandLine;
-import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-@Command(name = "cloudstorage", mixinStandardHelpOptions = true, version = "1.0",
-        description = "Client for interacting with cloud storage service")
+@Component
+@CommandLine.Command(name = "cloudstorage-original", mixinStandardHelpOptions = true, version = "0.3",
+        description = "Client for interacting with storage service")
 public class CloudStorageClient implements Runnable {
 
-    @Option(names = {"-u", "--upload"}, description = "Upload file to cloud storage")
+    @Option(names = {"-u", "--upload"}, description = "Upload file to the storage")
     private String uploadFile;
 
-    @Option(names = {"-d", "--download"}, description = "Download file from cloud storage by ID")
+    @Option(names = {"-d", "--download"}, description = "Download file from the storage by id")
     private Long downloadFileId;
 
-    @Option(names = {"-r", "--rename"}, description = "Rename file in cloud storage by ID")
-    private String[] renameFile;
+    @Option(names = {"-p", "--path"}, description = "Path to save the downloaded file")
+    private String downloadPath;
 
-    @Option(names = {"-del", "--delete"}, description = "Delete file from cloud storage by ID")
+    @Option(names = {"-n", "--name"}, description = "Name of the downloaded file")
+    private String fileName;
+
+    @Option(names = {"-r", "--rename"}, description = "Rename file in the storage by id")
+    private Long renameFileId;
+
+    @Option(names = {"-del", "--delete"}, description = "Delete file from the storage by id")
     private Long deleteFileId;
 
-    @Option(names = {"-l", "--list"}, description = "List all files in cloud storage")
+    @Option(names = {"-l", "--list"}, description = "List all files in the storage")
     private boolean listFiles;
 
     private final String baseUrl = "http://localhost:8080/api/files";
-
-    public static void main(String[] args) {
-        int exitCode = new CommandLine(new CloudStorageClient()).execute(args);
-        System.exit(exitCode);
-    }
 
     @Override
     public void run() {
@@ -51,7 +55,7 @@ public class CloudStorageClient implements Runnable {
                 uploadFile(client);
             } else if (downloadFileId != null) {
                 downloadFile(client);
-            } else if (renameFile != null && renameFile.length == 2) {
+            } else if (renameFileId != null) {
                 renameFile(client);
             } else if (deleteFileId != null) {
                 deleteFile(client);
@@ -61,44 +65,58 @@ public class CloudStorageClient implements Runnable {
                 System.out.println("No valid option provided. Use --help to see the available options.");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("System error, please re-run the program. " + e.getMessage());
         }
     }
 
     private void uploadFile(CloseableHttpClient client) throws IOException {
-        HttpPost request = new HttpPost(baseUrl + "/upload");
+        HttpPost request = new HttpPost(baseUrl);
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addBinaryBody("file", Files.readAllBytes(Paths.get(uploadFile)));
+        File file = new File(Paths.get(uploadFile).toUri()); // newly added
+        builder.addBinaryBody("file", file);
+        // builder.addBinaryBody("file", Files.readAllBytes(Paths.get(uploadFile))); // bug code
         request.setEntity(builder.build());
 
         try (var response = client.execute(request)) {
             System.out.println(EntityUtils.toString(response.getEntity()));
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Upload file failed, please re-check your option and args. " + e.getMessage());
         }
     }
 
     private void downloadFile(CloseableHttpClient client) {
-        HttpGet request = new HttpGet(baseUrl + "/download/" + downloadFileId);
+        HttpGet request = new HttpGet(baseUrl + "/" + downloadFileId);
 
         try (var response = client.execute(request)) {
-            Files.write(Paths.get("downloaded_file"), EntityUtils.toByteArray(response.getEntity()));
+            Path downloadFilePath;
+            if (downloadPath != null) {
+                downloadFilePath = Paths.get(downloadPath);
+            } else {
+                downloadFilePath = Paths.get(System.getProperty("user.dir"));
+            }
+            if (fileName != null) {
+                downloadFilePath = downloadFilePath.resolve(fileName);
+            } else {
+                throw new IOException("The name of the file is not given, please use -n/--name to retry.");
+            }
+            Files.write(downloadFilePath, EntityUtils.toByteArray(response.getEntity()));
             System.out.println("File downloaded successfully.");
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Download file failed, please re-check your option and args. " + e.getMessage());
         }
     }
 
     private void renameFile(CloseableHttpClient client) throws IOException {
-        HttpPost request = new HttpPost(baseUrl + "/rename/" + renameFile[0]);
+        HttpPut request = new HttpPut(baseUrl + "/" + renameFileId);
         List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("newName", renameFile[1]));
+        params.add(new BasicNameValuePair("newName", fileName));
         request.setEntity(new UrlEncodedFormEntity(params));
 
         try (var response = client.execute(request)) {
             System.out.println(EntityUtils.toString(response.getEntity()));
+            System.out.println("File renamed successfully.");
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Rename file failed, please re-check your option and args. " + e.getMessage());
         }
     }
 
@@ -107,8 +125,9 @@ public class CloudStorageClient implements Runnable {
 
         try (var response = client.execute(request)) {
             System.out.println(EntityUtils.toString(response.getEntity()));
+            System.out.println("File deleted successfully.");
         } catch (IOException | ParseException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Delete file failed, please re-check your option and args. " + e.getMessage());
         }
     }
 
@@ -116,9 +135,9 @@ public class CloudStorageClient implements Runnable {
         HttpGet request = new HttpGet(baseUrl);
 
         try (var response = client.execute(request)) {
-            System.out.println(EntityUtils.toString(response.getEntity()));
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
+            System.out.println("File listed successfully.");
+        } catch (IOException e) {
+            throw new RuntimeException("List file failed, please re-check your option and args. " + e.getMessage());
         }
     }
 }

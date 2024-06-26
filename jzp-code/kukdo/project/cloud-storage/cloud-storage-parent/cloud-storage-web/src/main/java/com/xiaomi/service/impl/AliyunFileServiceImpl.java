@@ -44,9 +44,9 @@ public class AliyunFileServiceImpl implements FileService {
     }
 
     @Override
-    public FileMetadata getFileMetadata(Long Id) {
-        return fileMetadataRepository.findById(Id)
-                .orElseThrow(() -> new RuntimeException("File not found with Id " + Id));
+    public FileMetadata getFileMetadata(Long id) {
+        return fileMetadataRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("File not found with id " + id));
     }
 
     @Override
@@ -55,8 +55,8 @@ public class AliyunFileServiceImpl implements FileService {
     }
 
     @Override
-    public void deleteFile(Long Id) {
-        FileMetadata metadata = getFileMetadata(Id);
+    public void deleteFile(Long id) {
+        FileMetadata metadata = getFileMetadata(id);
         storageService.delete(metadata.getFilePath());
         fileMetadataRepository.delete(metadata);
     }

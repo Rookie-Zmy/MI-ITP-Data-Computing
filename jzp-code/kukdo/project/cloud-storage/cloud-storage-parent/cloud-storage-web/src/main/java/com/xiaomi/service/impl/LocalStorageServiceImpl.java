@@ -1,7 +1,10 @@
 package com.xiaomi.service.impl;
 
+import com.xiaomi.model.FileMetadata;
+import com.xiaomi.repository.FileMetadataRepository;
 import com.xiaomi.service.StorageService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -12,9 +15,13 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service("LocalStorage")
 public class LocalStorageServiceImpl implements StorageService {
+
+    @Autowired
+    private FileMetadataRepository fileMetadataRepository;
 
     private final Path rootLocation;
 
@@ -46,17 +53,16 @@ public class LocalStorageServiceImpl implements StorageService {
 
     @Override
     public List<String> listFiles() {
-        List<String> fileNames = new ArrayList<>();
+        String directoryPath = rootLocation.toString();
+        List<FileMetadata> fileNames;
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(rootLocation)) {
-            for (Path path : directoryStream) {
-                if (Files.isRegularFile(path)) {
-                    fileNames.add(path.getFileName().toString());
-                }
-            }
+            fileNames = fileMetadataRepository.findByFilePathStartingWith(directoryPath);
         } catch (Exception e) {
             throw new RuntimeException("Failed to list files", e);
         }
-        return fileNames;
+        return fileNames.stream()
+                .map(file -> "ID: " + file.getId() + ", Name: " + file.getFileName() + "\n")
+                .collect(Collectors.toList());
     }
 
     @Override
