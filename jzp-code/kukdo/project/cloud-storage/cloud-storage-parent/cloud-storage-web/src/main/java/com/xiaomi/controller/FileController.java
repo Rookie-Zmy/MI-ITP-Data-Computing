@@ -26,10 +26,10 @@ public class FileController {
     }
 
     @GetMapping("/files")
-    public List<String> listFiles() {
+    public ResponseEntity<List<String>> listFiles() {
         List<String> files = fileService.getAllFiles();
         files.forEach(System.out::println);
-        return files;
+        return ResponseEntity.ok(files);
     }
 
     @PostMapping("/files")
